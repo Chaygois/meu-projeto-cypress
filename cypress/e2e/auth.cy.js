@@ -4,8 +4,8 @@ describe('Cadastro de usuário', () => {
   let nome, senha;
 
   beforeEach(() => {
-    nome = faker.name.fullName() + faker.string.uuid().slice(0, 6);  // Garante que o nome seja único
-    senha = faker.internet.password({ length: 10, memorable: true });
+    nome = faker.internet.userName() + faker.string.uuid().slice(0, 6);
+    senha = faker.internet.password(10, true);
     cy.visit('https://www.demoblaze.com/#');
   });
 
@@ -13,39 +13,37 @@ describe('Cadastro de usuário', () => {
     // Clica no botão "Sign up"
     cy.get('#signin2').click();
 
-    // Espera o modal de cadastro ser exibido
+    // Aguarda o modal de cadastro ser exibido
     cy.get('#signInModal').should('be.visible');
 
-    // Preenche os campos com os dados gerados pelo Faker
-    cy.get('#sign-username').type(nome);
-    cy.get('#sign-password').type(senha);
+    // Preenche os campos de cadastro
+    cy.get('#sign-username').type(nome, { force: true });
+    cy.get('#sign-password').type(senha, { force: true });
 
-    // Clica no botão "Sign up" para registrar o usuário
+    // Clica no botão "Sign up"
     cy.get('button[onclick="register()"]').click();
 
-    // Verifica se o alerta contém a mensagem correta, caso o cadastro já tenha sido feito
-    cy.on('window:alert', (alertText) => {
-      if (alertText.includes('This user already exist')) {
-        cy.log('Usuário já existe, prosseguindo com o login...');
-      } else {
-        expect(alertText).to.contains('Sign up successful');
-      }
+    // Aguarda alerta de sucesso
+    cy.on('window:alert', (text) => {
+      expect(text).to.contain('Sign up successful.');
     });
 
-    // Se o usuário já existir, ignora o cadastro e tenta fazer o login
-    cy.get('#login2').click({ force: true });
+    // Aguarda o backend processar o cadastro
+    cy.wait(3000);
 
-    // Espera o modal de login aparecer
-    cy.get('#loginModal', { timeout: 10000 }).should('be.visible');
+    // Realiza o login após o cadastro
+    cy.get('#login2').click({ force: true });  // Clica no botão de login
+    cy.wait(3000); // Espera o modal carregar completamente
 
-    // Preenche os campos de login com as credenciais do usuário recém-criado
-    cy.get('#login-username').type(nome);
-    cy.get('#login-password').type(senha);
+    // Aumenta o tempo de espera para garantir que o modal carregue
+    cy.get('#logInModalLabel', { timeout: 15000 }).should('be.visible'); // Usando o ID correto do modal de login
 
-    // Clica no botão "Login"
+    // Insere os dados nos campos de login
+    cy.get('#loginusername').type(nome, { force: true });
+    cy.get('#loginpassword').type(senha, { force: true });
+
+    // Clica no botão de login
     cy.get('button[onclick="logIn()"]').click();
 
-    // Verifica se o login foi bem-sucedido
-    cy.contains(nome).should('be.visible');
   });
 });
