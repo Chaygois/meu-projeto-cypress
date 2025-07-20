@@ -1,4 +1,4 @@
-# Teste Cypress: Cadastro, Login e Compra de Usuário
+# Automação de Testes E2E com Cypress: Jornada Completa do Usuário em E-commerce
 
 Este projeto contém um teste Cypress que simula o fluxo completo de cadastro, login e compra de um usuário no site [demoblaze.com](https://www.demoblaze.com/#).
 
